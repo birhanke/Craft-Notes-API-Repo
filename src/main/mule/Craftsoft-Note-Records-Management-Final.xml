@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd  http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+    <http:listener-config name="Craftsoft-Note-Records-Management-Final-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+    <apikit:config name="Craftsoft-Note-Records-Management-Final-config" api="resource::54f7743b-c1d9-490a-a4bf-17e15d1c015a:craftnote-for-excercise:1.0.4:raml:zip:Craftsoft Note Records Management Final.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <db:config name="Database_Config" doc:name="Database Config" doc:id="37fe6f62-5d9e-4b99-8abd-bd34228b4b78">
+        <db:my-sql-connection host="localhost" port="3306" user="root" password="1988" database="craftsoftnotes" />
+    </db:config>
+    <flow name="Craftsoft-Note-Records-Management-Final-main">
+        <http:listener config-ref="Craftsoft-Note-Records-Management-Final-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="Craftsoft-Note-Records-Management-Final-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Bad request"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">400</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Method not allowed"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">405</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not acceptable"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">406</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Unsupported media type"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">415</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not Implemented"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">501</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="Craftsoft-Note-Records-Management-Final-console">
+        <http:listener config-ref="Craftsoft-Note-Records-Management-Final-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="Craftsoft-Note-Records-Management-Final-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="put:\notes\(noteId):application\json:Craftsoft-Note-Records-Management-Final-config">
+        <set-variable value="#[attributes.uriParams.noteId]" doc:name="Set Variable" doc:id="740197b8-860b-4ebd-90aa-41be87c53902" variableName="noteIdparamater" />
+		<set-variable value="#[payload]" doc:name="Set Variable" doc:id="301d4243-c222-41c6-b03d-0f1c2dd7941d" variableName="notedata" />
+		<db:select doc:name="Select" doc:id="a69a62b6-6c9c-4cb6-91f4-5ff4c1f2ec09" config-ref="Database_Config">
+            <db:sql><![CDATA[SELECT id FROM notes WHERE id = :noteId;]]></db:sql>
+            <db:input-parameters><![CDATA[#[{
+	noteId: attributes.uriParams.noteId
+}]]]></db:input-parameters>
+        </db:select>
+        <choice doc:name="Choice" doc:id="4d1f24a8-e41b-4e4e-8486-4977aeccd132">
+            <when expression="#[!isEmpty(payload)]">
+                <db:update doc:name="Update" doc:id="3680abb4-502f-441f-b3be-7298ef57f9c9" config-ref="Database_Config">
+                    <db:sql><![CDATA[UPDATE notes
+SET title = :title, content = :content, updatedAt = :updatedAt
+WHERE id = :noteId;]]></db:sql>
+                    <db:input-parameters><![CDATA[#[{
+	title: vars.notedata.title,
+	content: vars.notedata.content,
+	updatedAt: now(),
+	noteId: vars.noteIdparamater
+}]]]></db:input-parameters>
+                </db:update>
+                <ee:transform doc:name="Transform Message">
+                    <ee:variables>
+                        <ee:set-variable variableName="noteId"><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Note updated successfully"
+}]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </when>
+            <otherwise>
+                <db:insert doc:name="Insert" doc:id="5907e2f7-6707-4cd7-9226-7f43d343365e" config-ref="Database_Config">
+                    <db:sql><![CDATA[INSERT INTO notes ( title, content, updatedAt)
+VALUES (:title, :content, :updatedAt);]]></db:sql>
+                    <db:input-parameters><![CDATA[#[{
+	title: vars.notedata.title,
+	content: vars.notedata.content,
+	updatedAt: now()
+}]]]></db:input-parameters>
+                </db:insert>
+                <ee:transform doc:name="Transform Message" doc:id="00980c09-b355-42e6-bc75-54284cab534f">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Note created successfully"
+}]]></ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+            </otherwise>
+        </choice>
+        <logger level="INFO" doc:name="Logger" doc:id="6dcec484-6177-45e8-9499-d97036380070" />
+    </flow>
+    <flow name="delete:\notes\(noteId):Craftsoft-Note-Records-Management-Final-config">
+        <db:delete doc:name="Delete" doc:id="db5194fb-aa07-48c8-bf5b-0c6a8457b390" config-ref="Database_Config">
+            <db:sql><![CDATA[DELETE  FROM notes WHERE id = :noteId;]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	noteId: attributes.uriParams.noteId
+}]]]></db:input-parameters>
+        </db:delete>
+        <ee:transform doc:name="Transform Message">
+            <ee:variables>
+                <ee:set-variable variableName="noteId"><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Note updated successfully"
+}]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <logger level="INFO" message="delete:\notes\(noteId):Craftsoft-Note-Records-Management-Final-config" />
+    </flow>
+    <flow name="get:\notes:Craftsoft-Note-Records-Management-Final-config">
+        <db:select doc:name="Select" doc:id="b754194e-ff2e-406f-9597-300a859a2125" config-ref="Database_Config">
+            <db:sql><![CDATA[SELECT *  FROM notes WHERE updatedAt IS NOT NULL;]]></db:sql>
+        </db:select>
+        <ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\notes\(noteId):Craftsoft-Note-Records-Management-Final-config">
+        <db:select doc:name="Select" doc:id="caca7549-1c90-4c06-947d-2738adc176ad" config-ref="Database_Config">
+            <db:sql><![CDATA[SELECT * FROM notes WHERE id = :noteId AND updatedAt IS NOT NULL]]></db:sql>
+            <db:input-parameters><![CDATA[#[{
+	noteId: attributes.uriParams.noteId
+}]]]></db:input-parameters>
+        </db:select>
+        <choice doc:name="Choice" doc:id="4c041d96-20b3-44a6-884b-a5e292ca8716">
+            <when expression="#[!isEmpty(payload)]">
+                <ee:transform doc:name="Transform Message" doc:id="debf78ac-4fff-4e0d-8812-050bce6d63fa">
+                    <ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+					<ee:variables>
+                    </ee:variables>
+                </ee:transform>
+            </when>
+            <otherwise>
+				<ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Note not found or updatedAt is null"
+}]]></ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+            </otherwise>
+        </choice>
+    </flow>
+    <flow name="post:\notes:application\json:Craftsoft-Note-Records-Management-Final-config">
+        <db:insert doc:name="Insert" doc:id="e7cf4d99-3f7d-475f-9037-7cfbd1a1ec30" config-ref="Database_Config">
+            <db:sql><![CDATA[INSERT INTO notes ( title, content,  updatedAt)
+VALUES (:title, :content,  :updatedAt);]]></db:sql>
+            <db:input-parameters><![CDATA[#[{
+
+  title: payload.title,
+content: payload.content,
+	updatedAt: now()
+}]]]></db:input-parameters>
+        </db:insert>
+        <ee:transform doc:name="Transform Message" doc:id="37929fd6-8cfc-4e21-98b9-63a4f09df166">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+
+	payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+        <logger level="INFO" message="post:\notes:application\json:Craftsoft-Note-Records-Management-Final-config" />
+    </flow>
+</mule>
