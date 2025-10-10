@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="Craftsoft-Note-Records-Management-Final-test-suite.xml" />
+	<munit:test name="Craftsoft-Note-Records-Management-Final-test-suite-put:\notes\(noteId):application\json:Craftsoft-Note-Records-Management-Final-configTest" doc:id="11091104-ee0f-4c6e-b229-cb182a5f6a1f" description="Test">
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to put:\notes\(noteId):application\json:Craftsoft-Note-Records-Management-Final-config" doc:id="e7c9f791-e091-40aa-a3e1-e49cfc7c34c0" name="put:\notes\(noteId):application\json:Craftsoft-Note-Records-Management-Final-config"/>
+		</munit:execution>
+	</munit:test>
+	<munit:test name="Craftsoft-Note-Records-Management-Final-test-suite-Craftsoft-Note-Records-Management-Final-mainTest" doc:id="09a1690e-686d-47bf-9d6f-427a536a80a5" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="b0ff0a1b-7930-4b33-8f66-267df9699cab" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Craftsoft-Note-Records-Management-Final-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="bdeebacb-b914-459a-9464-7dbff9c6f49d" >
+				<munit:attributes value='"#[queryParams : { id : 101}]"/&gt;' />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to Craftsoft-Note-Records-Management-Final-main" doc:id="8e6bd641-2304-4f9f-8153-6933807d4657" name="Craftsoft-Note-Records-Management-Final-main"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="394fe5e3-f4db-4012-84ab-cee909ef03fd" expression="#[vars.httpStatus]" is="#[MunitTools::equalTo(200)]" message='"#["Expected status 200 but got " ++ vars.httpStatus]"/&gt;'/>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>
