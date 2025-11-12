@@ -130,6 +130,18 @@ output application/json
                     </ee:variables>
                 </ee:transform>
             </on-error-propagate>
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="ddc06b18-7cba-4551-9d37-9ef6d299bba9" >
+				<ee:transform doc:name="Transform Message" doc:id="cd20b27a-d737-40fc-a071-2fb20511d6d9" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	error: "continue flow if the API error occurred"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-continue>
         </error-handler>
     </flow>
     <flow name="put:\notes\(noteId):application\json:Craftsoft-Note-Records-Management-Final-config">
@@ -220,6 +232,16 @@ output application/json
 payload]]></ee:set-payload>
             </ee:message>
         </ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="bcaf5497-385a-44d5-80c1-851eed0db3b7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message: "Note retrieved successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
     </flow>
     <flow name="get:\notes\(noteId):Craftsoft-Note-Records-Management-Final-config">
         <db:select doc:name="Select" doc:id="caca7549-1c90-4c06-947d-2738adc176ad" config-ref="Database_Config">
@@ -275,6 +297,16 @@ output application/json
 	payload]]></ee:set-payload>
             </ee:message>
         </ee:transform>
-        <logger level="INFO" message="post:\notes:application\json:Craftsoft-Note-Records-Management-Final-config" />
+        <ee:transform doc:name="Transform Message" doc:id="716414f0-cf2a-4ea3-856e-d0abbb039cf8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message: "Note entered successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" message="post:\notes:application\json:Craftsoft-Note-Records-Management-Final-config" />
     </flow>
 </mule>
